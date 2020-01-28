@@ -17,8 +17,8 @@ def left(s, amount):
 def right(s, amount):
     return s[-amount:]
 
-def mid(s, offset, amount):
-    return s[offset:offset+amount]
+#def mid(s, offset, amount):
+#    return s[offset:offset+amount]
 
 class Arret:
     def __init__(self, intitule, horairesSemaineGo, horairesSemaineBack, horairesWEGo, horairesWEBack, liaisons):
@@ -28,11 +28,11 @@ class Arret:
         self.horairesWEGo = self.setHoraires(horairesWEGo)
         self.horairesWEBack = self.setHoraires(horairesWEBack)
         self.liaisons = liaisons
-        for liaison in sibra.regular_path :
-            if liaison != self.intitule :
+        for liaison in sibra.regular_path:
+            if liaison != self.intitule:
                 self.liaisons.append(liaison)
-#                self.liaisons.append(Trajet())
     
+
     # Retourne la liste des horaires au format timedelta (obtenu avec la bibliotèque datetime)            
     def setHoraires(self,typeHoraires):
         l = []
@@ -41,8 +41,7 @@ class Arret:
                 l.append(timedelta(hours = int(left(horaire,len(horaire)-3)),
                                    minutes = int(right(horaire,2))))
         return l
-    
-    
+       
     def getIntitule(self):
         return self.intitule
     
@@ -58,19 +57,61 @@ class Arret:
     def getHorairesWEBack(self):
         return self.horairesWEBack
         
-#
-#class Trajet:
-#    def __init__(self,duree,arretDepart,arretArrivee):
-#        self.duree
-#        
-#        
-#        
-#
-#class Reseau :
-#    def __init__(self,racine):
-#        self.racine = racine
-#        
+
+class Trajet:
+    def __init__(self,duree,arretDepart,arretArrivee):
+        self.duree
+        self.arretDepart = arretDepart
+        self.arretArrivee = arretArrivee
         
+    def getDuree(self):
+        return self.duree
+    
+    def getArretDepart(self):
+        return self.arretDepart
+    
+    def getArretArrivee(self):
+        return self.arretArrivee
+        
+
+
+class Reseau :
+    def __init__(self,racine):
+        self.racine = racine
+        
+    def setArretsFils(self,listeArrets = []):
+        for liaison in self.racine.liaisons:
+            listeArrets.append(Arret(liaison,
+                                     sibra.regular_date_go[liaison],
+                                     sibra.regular_date_back[liaison],
+                                     sibra.we_holidays_date_go[liaison],
+                                     sibra.we_holidays_date_back[liaison],
+                                     []))
+        
+    def setLiaisons(self,liaison):
+        pass
+        
+#                self.liaisons.append(Trajet())
+        
+# =============================================================================
+# Programme principal      
+# =============================================================================
+depart = input("Veuillez chosir l'arrêt de votre départ : ")
+arrivee = input("Veuillez choisir l'arrêt d'arrivée souhaité : ")
+#mode = input("Comment voulez-vous circuler ? ")
+
+voyage = Reseau(Arret(depart,
+             sibra.regular_date_go[depart],
+             sibra.regular_date_back[depart],
+             sibra.we_holidays_date_go[depart],
+             sibra.we_holidays_date_back[depart],
+             [])
+
+    
+# =============================================================================
+# Fin du programme principal    
+# =============================================================================
+
 listeArrets = []
 for arret in sibra.regular_path :  
     listeArrets.append(Arret(arret,
