@@ -105,7 +105,6 @@ class Reseau :
 listeFichiers = ['data/1_Poisy-ParcDesGlaisins.txt','data/2_Piscine-Patinoire_Campus.txt']
 listeLignes = []
 for fichier in listeFichiers:
-    print(mid(fichier,5,len(fichier)-9))
     listeLignes.append(Ligne(fichier,mid(fichier,5,len(fichier)-8)))
     
 def ajout(nomFichier):
@@ -119,8 +118,9 @@ def ajout(nomFichier):
 # Fonctions utilisées dans le programme principal    
 # =============================================================================
 def erreurSaisie(saisie):
+    print(listeLignes[0])
     for ligne in listeLignes:
-        if saisie in ligne.semaineOuWE:
+        if saisie in (if semaineOuWE ligne.semaineOuWE:
             return [False,ligne]
     sleep(2)
     return True
@@ -133,10 +133,10 @@ def erreurSaisie(saisie):
 jour = date.today().weekday()
 semaineOuWE = ("regular_path" if jour in (0,1,2,3,4) else "we_holidays_path" )
 
-messageDeDepart = "Voici la liste des fichiers qui seront traités pour calculer votre itinéraire. Si vous voulez en ajouter un autre, "
-messageDeDepart += "entrez tout de suite la commande ajouter('nomDuFichier') dans la console. Si la liste des fichiers pris en compte "
-messageDeDepart += "vous suffisent, entrez le nom de départ souhaité"
-depart = input(messageDeDepart,(fichier for fichier in listeFichiers))
+messageDeDepart = "Voici la liste des fichiers qui seront traités pour calculer votre itinéraire. Si vous voulez en ajouter un autre, " + \
+    "entrez tout de suite la commande ajouter('nomDuFichier') dans la console. Si la liste des fichiers pris en compte " + \
+    "vous suffisent, entrez le nom de départ souhaité"
+depart = input(messageDeDepart + ', '.join([fichier for fichier in listeFichiers]))
 
 while left(depart,5) == "ajout":
     depart = input(messageDeDepart,(fichier for fichier in listeFichiers))
