@@ -159,7 +159,7 @@ class Reseau :
             for arret in self.racine.arretSuivants:
                 if arret.getLigne() == self.racine.getLigne():
                     return arret.getIntitule()
-                return None
+            return None
          
     def shortest(self,longueur = -1, longueurMin = 10000,changementBus = False):
         longueur += 1
