@@ -5,19 +5,18 @@ Created on Thu Jan 23 08:23:04 2020
 @author: guilbers
 """
 
-#data_file_name = 'data/1_Poisy-ParcDesGlaisins.txt'
-#data_file_name = 'data/2_Piscine-Patinoire_Campus.txt'
-
 def lecture(data_file_name):
     try:
         with open(data_file_name, 'r') as f:
             content = f.read().replace("Ã‰","E")
             content = content.replace("Ãˆ","E")
+            content = content.replace("ã©","E")
+            content = content.replace("ã¢","A")
     except OSError:
         # 'File not found' error message.
         print("File not found")
         content = 'Vide'
-    return content.split("\n\n")
+    return content.lower().split("\n\n")
 
 def dates2dic(dates):
     dic = {}
