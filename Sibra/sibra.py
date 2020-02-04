@@ -10,8 +10,8 @@ def lecture(data_file_name):
         with open(data_file_name, 'r') as f:
             content = f.read().replace("Ã‰","E")
             content = content.replace("Ãˆ","E")
-            content = content.replace("ã©","E")
-            content = content.replace("ã¢","A")
+            content = content.replace("Ã©","E")
+            content = content.replace("Ã¢","A")
     except OSError:
         # 'File not found' error message.
         print("File not found")
@@ -26,4 +26,3 @@ def dates2dic(dates):
         tmp = stop_dates.split(" ")
         dic[tmp[0]] = tmp[1:]
     return dic
-
