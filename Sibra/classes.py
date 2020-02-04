@@ -5,10 +5,9 @@ Created on Thu Jan 23 10:32:41 2020
 @author: guilbers
 """
 
-from datetime import timedelta,date,datetime
+from datetime import date,datetime,timedelta
 from time import sleep
 import sibra
-import csv
 
 
 # =============================================================================
@@ -24,20 +23,36 @@ def mid(s, offset, amount):
     return s[offset:offset+amount]
 
 # =============================================================================
-# Date du jour
+# Choix de la date
 # =============================================================================
-joursFeriesVacances = []
-with open('data/jours-feries-seuls.csv', newline='') as csvfile:
-    csvfile.readline()
-    spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
-    for row in spamreader:
-        joursFeriesVacances.append(datetime(
-                year = int(left(row[0],4)),
-                month = int(mid(row[0],5,2)),
-                day = int(right(row[0],2))))
-        
-#Jour de la semaine d'aujoud'hui (0=lundi, 1=mardi, ..., 6=dimanche)
-jour = ("semaine" if date.today().weekday() < 6 else "weekend")
+print("\nIndiquez la date de départ au format jj/mm/aaaa ou bien saisissez le mot 'today' pour voyager aujourd'hui")
+choixDate = input("Quand souhaitez-vous voyager ? : ")
+# Vérification de la bonne saisie de l'utilisateur
+testDate = False
+while choixDate != "today" and not testDate:
+    try:
+        testAnnee = int(right(choixDate,4))>2000 and int(right(choixDate,4))>2000
+        testMois = int(mid(choixDate,3,2))<=12
+        testJour = int(left(choixDate,2))<=31
+        testDate = True if testAnnee and testMois and testJour else False
+    except:
+        choixDuJour = input("Saisie incorrecte. Veuillez réessayer : ")
+
+# La variable choixDate prend la valeur d'aujourd'hui au bon format (jj/mm/aaaa)
+if choixDate == "today":        
+    choixDate = datetime.strptime(str(date.today()),"%Y-%m-%d").strftime("%d/%m/%Y")
+# Conversion de la date saisie en datetime
+print(choixDate)
+convDate = datetime(
+        year = int(right(choixDate,4)),
+        month = int(mid(choixDate,3,2)),
+        day = int(left(choixDate,2)))
+   
+#Jour de la semaine de la date choisie (0=lundi, 1=mardi, ..., 6=dimanche)
+jour = convDate.weekday()
+print(jour)   
+jour = ("weVacancesFerie" if jour == 6 or convDate in sibra.getJoursFeriesVacances() else "semaine")
+print(jour)
 
 # =============================================================================
 # Classes
@@ -212,48 +227,54 @@ def erreurSaisie(saisie):
 # Programme principal      
 # =============================================================================
     
-#depart = "vernod"
-#arrivee = "ponchy"
-#ligneDepart = erreurSaisie(depart)
+depart = "vernod"
+arrivee = "ponchy"
+ligneDepart = erreurSaisie(depart)
 ##mode = input("Comment voulez-vous circuler ? ")
-    
+# =============================================================================
+# Accueil
+# =============================================================================
+
+
+
+
 # =============================================================================
 # Demande de saisie du lieu de départ
 # =============================================================================
 #"\033[4mChaîneDeCaractères\033[0m" renvoie ChaîneDeCaractères souligné dans la console
-print("\n\033[4mListe des fichiers déjà pris en compte:\033[0m")
-# Affichage des fichiers déjà pris en compte
-for fichier in listeFichiers:
-    print(fichier)
-print("\nCi-dessus la liste des fichiers qui seront traités pour calculer votre itinéraire. Si vous voulez en ajouter un autre, " + \
-    "entrez tout de suite le nom du fichier (.txt) à ajouter dans la console. Si la liste des fichiers pris en compte " + \
-    "vous suffisent, entrez le nom du départ souhaité.\n\n\033[4mVoici la liste des arrêts disponibles (ne pas mettre d'accents):\033[0m")
-
-affArrets = []
-for liste in listeLignes:
-    for arret in liste.path:
-        affArrets.append(arret)
-print(list(set(affArrets)))
-
-depart = input("Entrez le nom de l'arrêt de bus de départ ou du fichier .txt à ajouter : ").lower()
-
-while right(depart,4) == ".txt":
-    print("\nAjout en cours ...\n")
-    sleep(1)
-    ajouter(depart)
-    depart = input("Entrez le nom de l'arrêt de bus de départ ou du fichier .txt à ajouter : ").lower()
-    
-
-while erreurSaisie(depart) == True:
-    depart = input("Le lieu de départ est introuvable. Réessayez : ").lower()
-ligneDepart = erreurSaisie(depart)
-
-# =============================================================================
-# Demande de saisie du lieu d'arrivée
-# =============================================================================
-arrivee = input("Veuillez choisir l'arrêt d'arrivée souhaité : ")
-while erreurSaisie(arrivee) == True:
-    arrivee = input("Le lieu d'arrivee est introuvable. Réessayez : ").lower()
+#print("\n\033[4mListe des fichiers déjà pris en compte:\033[0m")
+## Affichage des fichiers déjà pris en compte
+#for fichier in listeFichiers:
+#    print(fichier)
+#print("\nCi-dessus la liste des fichiers qui seront traités pour calculer votre itinéraire. Si vous voulez en ajouter un autre, " + \
+#    "entrez tout de suite le nom du fichier (.txt) à ajouter dans la console. Si la liste des fichiers pris en compte " + \
+#    "vous suffisent, entrez le nom du départ souhaité.\n\n\033[4mVoici la liste des arrêts disponibles pour un jour en",jour," (ne pas mettre d'accents):\033[0m")
+#
+#affArrets = []
+#for liste in listeLignes:
+#    for arret in liste.path:
+#        affArrets.append(arret)
+#print(list(set(affArrets)))
+#
+#depart = input("Entrez le nom de l'arrêt de bus de départ ou du fichier .txt à ajouter : ").lower()
+#
+#while right(depart,4) == ".txt":
+#    print("\nAjout en cours ...\n")
+#    sleep(1)
+#    ajouter(depart)
+#    depart = input("Entrez le nom de l'arrêt de bus de départ ou du fichier .txt à ajouter : ").lower()
+#    
+#
+#while erreurSaisie(depart) == True:
+#    depart = input("Le lieu de départ est introuvable. Réessayez : ").lower()
+#ligneDepart = erreurSaisie(depart)
+#
+## =============================================================================
+## Demande de saisie du lieu d'arrivée
+## =============================================================================
+#arrivee = input("Veuillez choisir l'arrêt d'arrivée souhaité : ").lower()
+#while erreurSaisie(arrivee) == True:
+#    arrivee = input("Le lieu d'arrivee est introuvable. Réessayez : ").lower()
 
 # =============================================================================
 # Création de l'arborescence
@@ -277,11 +298,9 @@ voyage.setArretsFils([
 # =============================================================================*
 #1erArret = "Vous prendrez le bus à l'arrêt : "
 print(voyage.verifChangementBus(voyage.shortest()[1]))
-#print(voyage.verifChangementBus(voyage.shortest())[1])
 
-        
-    
-           
+
+          
 ## =============================================================================
 ## Fin du programme principal    
 ## =============================================================================
