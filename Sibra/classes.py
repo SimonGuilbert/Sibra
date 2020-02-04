@@ -5,9 +5,11 @@ Created on Thu Jan 23 10:32:41 2020
 @author: guilbers
 """
 
-from datetime import timedelta,date
+from datetime import timedelta,date,datetime
 from time import sleep
 import sibra
+import csv
+
 
 # =============================================================================
 # Fonctions trouvées sur internet pour simplifier le code
@@ -24,8 +26,18 @@ def mid(s, offset, amount):
 # =============================================================================
 # Date du jour
 # =============================================================================
+joursFeriesVacances = []
+with open('data/jours-feries-seuls.csv', newline='') as csvfile:
+    csvfile.readline()
+    spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
+    for row in spamreader:
+        joursFeriesVacances.append(datetime(
+                year = int(left(row[0],4)),
+                month = int(mid(row[0],5,2)),
+                day = int(right(row[0],2))))
+        
 #Jour de la semaine d'aujoud'hui (0=lundi, 1=mardi, ..., 6=dimanche)
-jour = ("semaine" if date.today().weekday() < 5 else "weekend")
+jour = ("semaine" if date.today().weekday() < 6 else "weekend")
 
 # =============================================================================
 # Classes
@@ -94,21 +106,10 @@ class Arret:
 class Reseau :
     def __init__(self,racine):
         self.racine = racine
-    
-#    def conditionArret(self,listeArrets):
-#        for arret in listeArrets:
-#            if arret[0] == arrivee:
-#                return True
-#        for arret in listeArrets:
-#            print("ici ",listeArrets)
-#            if arret[0] != None:
-#                return False
-#        return True
         
     def conditionArret(self):
         return self.racine.getIntitule() == arrivee
 
-        
     def croisementLigne(self,arret,ligne):
         if arret not in intersections:
             res = []
@@ -120,10 +121,7 @@ class Reseau :
                         intersections.append(arret)
             return ([[None]] if not res else res)
         return [[None]]
-    
-        
-        
-                
+              
     def setArretsFils(self,arretsAAjouter):       
 #        print("à ",self.racine.getIntitule())
 #        ex=input(self.racine.getLigne().nom)
@@ -140,7 +138,7 @@ class Reseau :
                 else:
                     listeProchainsArrets = [[arret[1].getArretSuivant(arret[0]),arret[1]]]
                 listeProchainsArrets.extend(self.croisementLigne(arret[0],arret[1]))
-                print(self.racine.getIntitule(),len(self.racine.arretSuivants))
+#                print(self.racine.getIntitule(),len(self.racine.arretSuivants))
 #                print("-------------------------")
 #                print("de ",self.racine.getIntitule())
 #                print("de ",self.racine.getLigne().nom)
@@ -151,22 +149,19 @@ class Reseau :
     
     def changementBus(self,fils):
         return self.racine.getLigne() != fils.getLigne()
-            
-#    def suivantApresArrivee(self):
-#        if self.racine.getIntitule() == arrivee:
-#            for arret in self.racine.arretSuivants:
-#                if arret.getLigne() == self.racine.getLigne():
-#                    return arret.getIntitule()
-#            return None
          
-    def shortest(self,longueur = 0,listeDistancesShortest = [float("inf"),None]):
+    def shortest(self,longueur = 0,listeDistancesShortest = []):
         if self.racine.getIntitule() == arrivee:
-            if longueur<listeDistancesShortest[0]:
-                listeDistancesShortest = [longueur,self.racine]
+            if listeDistancesShortest:
+                if longueur<listeDistancesShortest[0]:
+                    # Vidage de la liste
+                    listeDistancesShortest[:] = []
+                    listeDistancesShortest.extend([longueur,self.racine])
+            else:
+                listeDistancesShortest.extend([longueur,self.racine])
         longueur += 1
         if not self.estTerminus():
             for fils in self.racine.arretSuivants:
-                print(fils.getIntitule(),longueur,self.changementBus(fils))
                 Reseau(fils).shortest(longueur,listeDistancesShortest)
         #Récupération de l'indice du noeud courant dans sa ligne de bus
         i = self.racine.getLigne().path.index(self.racine.getIntitule())
@@ -211,61 +206,54 @@ def erreurSaisie(saisie):
     for ligne in listeLignes:
         if saisie in ligne.path:
             return ligne
-    return True
-
-def plusCourtChemin(shortest):
-    plusCourt = shortest[0]
-    for distance in shortest:
-        if distance[0]<plusCourt[0]:
-            plusCourt = distance[0]
-    return plusCourt   
+    return True  
         
 # =============================================================================
 # Programme principal      
 # =============================================================================
     
-depart = "vernod"
-arrivee = "ponchy"
-ligneDepart = erreurSaisie(depart)
+#depart = "vernod"
+#arrivee = "ponchy"
+#ligneDepart = erreurSaisie(depart)
 ##mode = input("Comment voulez-vous circuler ? ")
     
 # =============================================================================
 # Demande de saisie du lieu de départ
 # =============================================================================
 #"\033[4mChaîneDeCaractères\033[0m" renvoie ChaîneDeCaractères souligné dans la console
-#print("\n\033[4mListe des fichiers déjà pris en compte:\033[0m")
-## Affichage des fichiers déjà pris en compte
-#for fichier in listeFichiers:
-#    print(fichier)
-#print("\nCi-dessus la liste des fichiers qui seront traités pour calculer votre itinéraire. Si vous voulez en ajouter un autre, " + \
-#    "entrez tout de suite le nom du fichier (.txt) à ajouter dans la console. Si la liste des fichiers pris en compte " + \
-#    "vous suffisent, entrez le nom du départ souhaité.\n\n\033[4mVoici la liste des arrêts disponibles (ne pas mettre d'accents):\033[0m")
-#
-#affArrets = []
-#for liste in listeLignes:
-#    for arret in liste.path:
-#        affArrets.append(arret)
-#print(list(set(affArrets)))
-#
-#depart = input("Entrez le nom de l'arrêt de bus de départ ou du fichier .txt à ajouter : ").lower()
-#
-#while right(depart,4) == ".txt":
-#    print("\nAjout en cours ...\n")
-#    sleep(1)
-#    ajouter(depart)
-#    depart = input("Entrez le nom de l'arrêt de bus de départ ou du fichier .txt à ajouter : ").lower()
-#    
-#
-#while erreurSaisie(depart) == True:
-#    depart = input("Le lieu de départ est introuvable. Réessayez : ").lower()
-#ligneDepart = erreurSaisie(depart)
-#
-## =============================================================================
-## Demande de saisie du lieu d'arrivée
-## =============================================================================
-#arrivee = input("Veuillez choisir l'arrêt d'arrivée souhaité : ")
-#while erreurSaisie(arrivee) == True:
-#    arrivee = input("Le lieu d'arrivee est introuvable. Réessayez : ").lower()
+print("\n\033[4mListe des fichiers déjà pris en compte:\033[0m")
+# Affichage des fichiers déjà pris en compte
+for fichier in listeFichiers:
+    print(fichier)
+print("\nCi-dessus la liste des fichiers qui seront traités pour calculer votre itinéraire. Si vous voulez en ajouter un autre, " + \
+    "entrez tout de suite le nom du fichier (.txt) à ajouter dans la console. Si la liste des fichiers pris en compte " + \
+    "vous suffisent, entrez le nom du départ souhaité.\n\n\033[4mVoici la liste des arrêts disponibles (ne pas mettre d'accents):\033[0m")
+
+affArrets = []
+for liste in listeLignes:
+    for arret in liste.path:
+        affArrets.append(arret)
+print(list(set(affArrets)))
+
+depart = input("Entrez le nom de l'arrêt de bus de départ ou du fichier .txt à ajouter : ").lower()
+
+while right(depart,4) == ".txt":
+    print("\nAjout en cours ...\n")
+    sleep(1)
+    ajouter(depart)
+    depart = input("Entrez le nom de l'arrêt de bus de départ ou du fichier .txt à ajouter : ").lower()
+    
+
+while erreurSaisie(depart) == True:
+    depart = input("Le lieu de départ est introuvable. Réessayez : ").lower()
+ligneDepart = erreurSaisie(depart)
+
+# =============================================================================
+# Demande de saisie du lieu d'arrivée
+# =============================================================================
+arrivee = input("Veuillez choisir l'arrêt d'arrivée souhaité : ")
+while erreurSaisie(arrivee) == True:
+    arrivee = input("Le lieu d'arrivee est introuvable. Réessayez : ").lower()
 
 # =============================================================================
 # Création de l'arborescence
@@ -288,7 +276,8 @@ voyage.setArretsFils([
 # Shortest
 # =============================================================================*
 #1erArret = "Vous prendrez le bus à l'arrêt : "
-print(voyage.verifChangementBus(plusCourtChemin(voyage.shortest())[1]))
+print(voyage.verifChangementBus(voyage.shortest()[1]))
+#print(voyage.verifChangementBus(voyage.shortest())[1])
 
         
     
@@ -302,4 +291,3 @@ print("\n\n\n ************** Affichages de tests *******************\n")
 
 
                 
-   
