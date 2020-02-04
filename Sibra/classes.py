@@ -147,33 +147,43 @@ class Reseau :
                 Reseau(nouvelArret).setArretsFils(listeProchainsArrets)
                 
     def estTerminus(self):
-        if (not self.racine.arretSuivants) or (self.racine.getIntitule() == arrivee):
-            return True
-        return False   
+        return not self.racine.arretSuivants
     
     def changementBus(self,fils):
         return self.racine.getLigne() != fils.getLigne()
             
-    def suivantApresArrivee(self):
-        if self.racine.getIntitule() == arrivee:
-            for arret in self.racine.arretSuivants:
-                if arret.getLigne() == self.racine.getLigne():
-                    return arret.getIntitule()
-            return None
+#    def suivantApresArrivee(self):
+#        if self.racine.getIntitule() == arrivee:
+#            for arret in self.racine.arretSuivants:
+#                if arret.getLigne() == self.racine.getLigne():
+#                    return arret.getIntitule()
+#            return None
          
-    def shortest(self,longueur = 0, longueurMin = 10000,changementBus = False):
+    def shortest(self,longueur = 0,listeDistancesShortest = [float("inf"),None]):
+        if self.racine.getIntitule() == arrivee:
+            if longueur<listeDistancesShortest[0]:
+                listeDistancesShortest = [longueur,self.racine]
         longueur += 1
         if not self.estTerminus():
             for fils in self.racine.arretSuivants:
-                print(fils.getIntitule(),longueur,longueurMin)
-                Reseau(fils).shortest(longueur,longueurMin,self.changementBus(fils))
-        if longueur < longueurMin and self.racine.getIntitule() == arrivee:
-            longueurMin = longueur 
+                print(fils.getIntitule(),longueur,self.changementBus(fils))
+                Reseau(fils).shortest(longueur,listeDistancesShortest)
+        #Récupération de l'indice du noeud courant dans sa ligne de bus
         i = self.racine.getLigne().path.index(self.racine.getIntitule())
+        # La boucle while sert à 'reculer' dans l'arbre jusqu'à une intersection
         while self.racine.getLigne().path[i] not in intersections:
-            i += (1 if self.racine.getLigne().getArretPrecedent(self.racine.getIntitule()) in (None,self.suivantApresArrivee()) else -1)
+            i += (1 if self.racine.getLigne().getArretPrecedent(self.racine.getIntitule()) == None else -1)
             longueur -= 1
-        return longueurMin,changementBus
+        return listeDistancesShortest
+    
+    def verifChangementBus(self,arret,res = []):
+        if not self.estTerminus():
+            for fils in self.racine.arretSuivants:
+                if fils.getLigne() != self.racine.getLigne():
+                    res.append(self.racine)
+                if fils == arret:
+                    return res
+                Reseau(fils).verifChangementBus(arret)
          
 # =============================================================================
 # Lecture des fichiers d'origine
@@ -202,7 +212,14 @@ def erreurSaisie(saisie):
         if saisie in ligne.path:
             return ligne
     return True
-     
+
+def plusCourtChemin(shortest):
+    plusCourt = shortest[0]
+    for distance in shortest:
+        if distance[0]<plusCourt[0]:
+            plusCourt = distance[0]
+    return plusCourt   
+        
 # =============================================================================
 # Programme principal      
 # =============================================================================
@@ -271,7 +288,9 @@ voyage.setArretsFils([
 # Shortest
 # =============================================================================*
 #1erArret = "Vous prendrez le bus à l'arrêt : "
-print(voyage.shortest())
+print(voyage.verifChangementBus(plusCourtChemin(voyage.shortest())[1]))
+
+        
     
            
 ## =============================================================================
