@@ -152,25 +152,26 @@ class Reseau :
         return False   
     
     def changementBus(self,fils):
-        return self.racine.getLigne() != fils.racine.getLigne()
+        return self.racine.getLigne() != fils.getLigne()
             
     def suivantApresArrivee(self):
-        if self.getIntitule() == arrivee:
+        if self.racine.getIntitule() == arrivee:
             for arret in self.racine.arretSuivants:
                 if arret.getLigne() == self.racine.getLigne():
                     return arret.getIntitule()
             return None
          
-    def shortest(self,longueur = -1, longueurMin = 10000,changementBus = False):
+    def shortest(self,longueur = 0, longueurMin = 10000,changementBus = False):
         longueur += 1
         if not self.estTerminus():
             for fils in self.racine.arretSuivants:
+                print(fils.getIntitule(),longueur,longueurMin)
                 Reseau(fils).shortest(longueur,longueurMin,self.changementBus(fils))
         if longueur < longueurMin and self.racine.getIntitule() == arrivee:
-            longueurMin = longueur    
+            longueurMin = longueur 
         i = self.racine.getLigne().path.index(self.racine.getIntitule())
         while self.racine.getLigne().path[i] not in intersections:
-            i += (1 if self.racine.getLigne().getPrecedent(self.racine.getIntitule()) in (None,self.suivantApresArrivee()) else -1)
+            i += (1 if self.racine.getLigne().getArretPrecedent(self.racine.getIntitule()) in (None,self.suivantApresArrivee()) else -1)
             longueur -= 1
         return longueurMin,changementBus
          
@@ -253,7 +254,7 @@ ligneDepart = erreurSaisie(depart)
 # Création de l'arborescence
 # =============================================================================
 # Liste initialement vide utilisée dans la fonction croisementLigne() de la classe Reseau
-intersections = []
+intersections = [depart]
 
 # Création du noeud racine de l'arborescence
 voyage = Reseau(Arret(depart,
@@ -270,7 +271,7 @@ voyage.setArretsFils([
 # Shortest
 # =============================================================================*
 #1erArret = "Vous prendrez le bus à l'arrêt : "
-voyage.shortest()
+print(voyage.shortest())
     
            
 ## =============================================================================
