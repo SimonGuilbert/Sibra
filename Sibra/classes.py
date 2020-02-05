@@ -31,13 +31,11 @@ choixDate = input("Quand souhaitez-vous voyager ? : ")
 testDate = False
 while choixDate != "today" and not testDate:
     try:
-        testAnnee = int(right(choixDate,4))>2000 and int(right(choixDate,4))>2000
-        testMois = int(mid(choixDate,3,2))<=12
-        testJour = int(left(choixDate,2))<=31
-        testDate = True if testAnnee and testMois and testJour else False
+       if int(right(choixDate,4))>2000 and int(right(choixDate,4))<2050 and int(mid(choixDate,3,2))<=12 and int(left(choixDate,2))<=31:
+           testDate = True
     except:
-        choixDuJour = input("Saisie incorrecte. Veuillez réessayer : ")
-
+        choixDate = input("Saisie incorrecte. Veuillez réessayer : ")    
+        
 # La variable choixDate prend la valeur d'aujourd'hui au bon format (jj/mm/aaaa)
 if choixDate == "today":        
     choixDate = datetime.strptime(str(date.today()),"%Y-%m-%d").strftime("%d/%m/%Y")
