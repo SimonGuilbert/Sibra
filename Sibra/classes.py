@@ -25,33 +25,36 @@ def mid(s, offset, amount):
 # =============================================================================
 # Choix de la date
 # =============================================================================
-print("\nIndiquez la date de départ au format jj/mm/aaaa ou bien saisissez le mot 'today' pour voyager aujourd'hui")
-choixDate = input("Quand souhaitez-vous voyager ? : ")
-# Vérification de la bonne saisie de l'utilisateur
-testDate = False
-while choixDate != "today" and not testDate:
-    try:
-       if int(right(choixDate,4))>2000 and int(right(choixDate,4))<2050 and int(mid(choixDate,3,2))<=12 and int(left(choixDate,2))<=31:
-           testDate = True
-    except:
-        choixDate = input("Saisie incorrecte. Veuillez réessayer : ")    
-        
-# La variable choixDate prend la valeur d'aujourd'hui au bon format (jj/mm/aaaa)
-if choixDate == "today":        
-    choixDate = datetime.strptime(str(date.today()),"%Y-%m-%d").strftime("%d/%m/%Y")
-# Conversion de la date saisie en datetime
-print(choixDate)
-convDate = datetime(
-        year = int(right(choixDate,4)),
-        month = int(mid(choixDate,3,2)),
-        day = int(left(choixDate,2)))
-   
-#Jour de la semaine de la date choisie (0=lundi, 1=mardi, ..., 6=dimanche)
-jour = convDate.weekday()
-print(jour)   
-jour = ("weVacancesFerie" if jour == 6 or convDate in sibra.getJoursFeriesVacances() else "semaine")
-print(jour)
-
+#print("\nIndiquez la date de départ au format jj/mm/aaaa ou bien saisissez le mot 'today' pour voyager aujourd'hui")
+#choixDate = input("Quand souhaitez-vous voyager ? : ")
+## Vérification de la bonne saisie de l'utilisateur
+#testDate = False
+#while choixDate != "today" and not testDate:
+#    try:
+#       if int(right(choixDate,4))>2000 and int(right(choixDate,4))<2050 and \
+#       int(mid(choixDate,3,2))<=12 and int(left(choixDate,2))<=31 and \
+#       choixDate[2] == "/" and choixDate[5] == "/" and len(choixDate)==10:
+#               testDate = True
+#       else:
+#           choixDate = input("Saisie incorrecte. Veuillez réessayer : ")   
+#    except:
+#        choixDate = input("Saisie incorrecte. Veuillez réessayer : ")    
+#        
+## La variable choixDate prend la valeur d'aujourd'hui au bon format (jj/mm/aaaa)
+#if choixDate == "today":        
+#    choixDate = datetime.strptime(str(date.today()),"%Y-%m-%d").strftime("%d/%m/%Y")
+## Conversion de la date saisie en datetime
+#print(choixDate)
+#convDate = datetime(
+#        year = int(right(choixDate,4)),
+#        month = int(mid(choixDate,3,2)),
+#        day = int(left(choixDate,2)))
+#   
+##Jour de la semaine de la date choisie (0=lundi, 1=mardi, ..., 6=dimanche)
+#jour = convDate.weekday()
+# 
+#jour = ("weVacancesFerie" if jour>4 or convDate in sibra.getJoursFeriesVacances() else "semaine")
+jour = "semaine"
 # =============================================================================
 # Classes
 # =============================================================================
@@ -163,26 +166,33 @@ class Reseau :
     def changementBus(self,fils):
         return self.racine.getLigne() != fils.getLigne()
          
-    def shortest(self,longueur = 0,listeDistancesShortest = []):
+    def shortest(self,longueur = 0,distanceShortest = [],listeArrets = []):
         if self.racine.getIntitule() == arrivee:
-            if listeDistancesShortest:
-                if longueur<listeDistancesShortest[0]:
+            if distanceShortest:
+                if longueur<distanceShortest[0]:
                     # Vidage de la liste
-                    listeDistancesShortest[:] = []
-                    listeDistancesShortest.extend([longueur,self.racine])
+                    distanceShortest[:] = []
+                    distanceShortest.extend([longueur,self.racine])
             else:
-                listeDistancesShortest.extend([longueur,self.racine])
+                distanceShortest.extend([longueur,self.racine])
         longueur += 1
+        listeArrets.append(self.racine.getIntitule())
         if not self.estTerminus():
             for fils in self.racine.arretSuivants:
-                Reseau(fils).shortest(longueur,listeDistancesShortest)
-        #Récupération de l'indice du noeud courant dans sa ligne de bus
-        i = self.racine.getLigne().path.index(self.racine.getIntitule())
-        # La boucle while sert à 'reculer' dans l'arbre jusqu'à une intersection
-        while self.racine.getLigne().path[i] not in intersections:
-            i += (1 if self.racine.getLigne().getArretPrecedent(self.racine.getIntitule()) == None else -1)
-            longueur -= 1
-        return listeDistancesShortest
+                Reseau(fils).shortest(longueur,distanceShortest,listeArrets)
+        else:
+            #Récupération de l'indice du noeud courant dans sa ligne de bus
+            i = self.racine.getLigne().path.index(self.racine.getIntitule())
+            # La boucle while sert à 'reculer' dans l'arbre jusqu'à une intersection
+            print("newWhile",self.racine.getIntitule())
+#            print(listeArrets)
+            while self.racine.getLigne().path[i] not in intersections:
+                i += (1 if self.racine.getLigne().getArretPrecedent(self.racine.getIntitule()) == None else -1)
+                longueur -= 1
+                if len(listeArrets)>0:
+                    del listeArrets[-1]
+            print(listeArrets)
+        return distanceShortest
     
     def verifChangementBus(self,arret,res = []):
         if not self.estTerminus():
@@ -226,20 +236,14 @@ def erreurSaisie(saisie):
 # =============================================================================
     
 depart = "vernod"
-arrivee = "ponchy"
+arrivee = "bonlieu"
 ligneDepart = erreurSaisie(depart)
 ##mode = input("Comment voulez-vous circuler ? ")
 # =============================================================================
 # Accueil
 # =============================================================================
-
-
-
-
-# =============================================================================
-# Demande de saisie du lieu de départ
-# =============================================================================
 #"\033[4mChaîneDeCaractères\033[0m" renvoie ChaîneDeCaractères souligné dans la console
+#print("**** Vous avez choisi de voyager un jour ",("normal en semaine" if jour = "semaine" else "en weekend, férié ou pendant les vacances scolaires"))
 #print("\n\033[4mListe des fichiers déjà pris en compte:\033[0m")
 ## Affichage des fichiers déjà pris en compte
 #for fichier in listeFichiers:
@@ -253,7 +257,11 @@ ligneDepart = erreurSaisie(depart)
 #    for arret in liste.path:
 #        affArrets.append(arret)
 #print(list(set(affArrets)))
-#
+
+# =============================================================================
+# Demande de saisie du lieu de départ
+# =============================================================================
+
 #depart = input("Entrez le nom de l'arrêt de bus de départ ou du fichier .txt à ajouter : ").lower()
 #
 #while right(depart,4) == ".txt":
@@ -295,7 +303,8 @@ voyage.setArretsFils([
 # Shortest
 # =============================================================================*
 #1erArret = "Vous prendrez le bus à l'arrêt : "
-print(voyage.verifChangementBus(voyage.shortest()[1]))
+#print(voyage.verifChangementBus(voyage.shortest()[1]))
+print(voyage.shortest())
 
 
           
