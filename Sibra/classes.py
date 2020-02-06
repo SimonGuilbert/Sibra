@@ -121,6 +121,7 @@ class Arret:
 class Reseau :
     def __init__(self,racine):
         self.racine = racine
+        self.listeCheminsPossibles = []
         
     def conditionArret(self):
         return self.racine.getIntitule() == arrivee
@@ -165,13 +166,13 @@ class Reseau :
     def changementBus(self,fils):
         return self.racine.getLigne() != fils.getLigne()
     
-    def remontee(self,stop,listeArrets):
+    def remontee(self,stop,l):
         #Récupération de l'indice du noeud courant dans sa ligne de bus
         i = self.racine.getLigne().path.index(self.racine.getIntitule())
         # La boucle while sert à 'reculer' dans l'arbre jusqu'à une intersection
         while self.racine.getLigne().path[i] not in stop or self.racine.getLigne().path[i] == self.racine.getIntitule():
             i += (1 if self.racine.getLigne().getArretPrecedent(self.racine.getIntitule()) == None else -1)
-            del listeArrets[-1]
+            del l[-1]
         
          
     def cheminsPossibles(self,derniereIntersection,listeArrets = []):
@@ -183,8 +184,7 @@ class Reseau :
                 if (derniereIntersection or self.racine.getIntitule()) != depart:
                     self.remontee(intersections,listeArrets)
         else:
-            print(listeArrets)
-            print("--------------------------------------------")
+            voyage.listeCheminsPossibles.extend(listeArrets)
             self.remontee(derniereIntersection,listeArrets)
     
          
@@ -291,8 +291,9 @@ voyage.setArretsFils([
 #print(voyage.verifChangementBus(voyage.shortest()[1]))
 
     
-k = []
+
 voyage.cheminsPossibles(depart)
+print(voyage.listeCheminsPossibles)
 
 
     
