@@ -125,6 +125,23 @@ class Reseau :
         
     def conditionArret(self):
         return self.racine.getIntitule() == arrivee
+    
+    # Deux arrets portant le même nom et situés sur la même ligne de bus sont identiques
+    def memeArretQueDepart(self,arret):
+        return arret.getIntitule() == depart and arret.getLigne() == ligneDepart
+            
+    def setCheminsPossibles(self,liste,listeFinale = []):
+        for arret in liste:
+            if arret.getIntitule() == arrivee:
+                res = []
+                i = liste.index(arret)
+                while not self.memeArretQueDepart(liste[i]):
+                    i -= 1
+                for j in range(i,liste.index(arret)+1):
+                    res.append(liste[j])
+                listeFinale.append(res)
+        return listeFinale
+                
 
     def croisementLigne(self,arret,ligne):
         if arret not in intersections:
@@ -139,8 +156,6 @@ class Reseau :
         return [[None]]
               
     def setArretsFils(self,arretsAAjouter):       
-#        print("à ",self.racine.getIntitule())
-#        ex=input(self.racine.getLigne().nom)
         for arret in arretsAAjouter:
             if arret[0] != None:
                 nouvelArret = Arret(arret[0],
@@ -154,10 +169,6 @@ class Reseau :
                 else:
                     listeProchainsArrets = [[arret[1].getArretSuivant(arret[0]),arret[1]]]
                 listeProchainsArrets.extend(self.croisementLigne(arret[0],arret[1]))
-#                print(self.racine.getIntitule(),len(self.racine.arretSuivants))
-#                print("-------------------------")
-#                print("de ",self.racine.getIntitule())
-#                print("de ",self.racine.getLigne().nom)
                 Reseau(nouvelArret).setArretsFils(listeProchainsArrets)
                 
     def estTerminus(self):
@@ -166,26 +177,38 @@ class Reseau :
     def changementBus(self,fils):
         return self.racine.getLigne() != fils.getLigne()
     
-    def remontee(self,stop,l):
+    def sensCirculation(self,listeArr):
+        if self.racine.getLigne().getArretPrecedent(self.racine.getIntitule()) == None:
+            return "Go"
+        if self.racine.getLigne().getArretSuivant(self.racine.getIntitule()) == None:
+            return "Back"
+        else:
+            if listeArr.index(self.racine.getLigne().getArretPrecedent(self.racine.getIntitule()))< \
+            listeArr.index(self.racine.getLigne().getArretSuivant(self.racine.getIntitule())):
+                return "Go"
+            return "Back"
+    
+    def remontee(self,stop,l,sens):
+        print(self.racine.getIntitule())
         #Récupération de l'indice du noeud courant dans sa ligne de bus
         i = self.racine.getLigne().path.index(self.racine.getIntitule())
         # La boucle while sert à 'reculer' dans l'arbre jusqu'à une intersection
-        while self.racine.getLigne().path[i] not in stop or self.racine.getLigne().path[i] == self.racine.getIntitule():
-            i += (1 if self.racine.getLigne().getArretPrecedent(self.racine.getIntitule()) == None else -1)
+        while self.racine.getLigne().path[i] not in stop or self.racine.getLigne().path[i] == self.racine.getIntitule():   
+            i += (1 if sens == "Go" else -1)
             del l[-1]
         
          
-    def cheminsPossibles(self,derniereIntersection,listeArrets = []):
-        listeArrets.append(self.racine.getIntitule())
+    def chemins(self,derniereIntersection,listeArrets = []):
+        listeArrets.append(self.racine)
         if not self.estTerminus():
             for fils in self.racine.arretSuivants:
-                Reseau(fils).cheminsPossibles((self.racine.getIntitule() if len(self.racine.arretSuivants)>1 else derniereIntersection),listeArrets)
+                Reseau(fils).chemins((self.racine.getIntitule() if len(self.racine.arretSuivants)>1 else derniereIntersection),listeArrets)
             if self.racine.getIntitule() in intersections and len(self.racine.arretSuivants)>1:
-                if (derniereIntersection or self.racine.getIntitule()) != depart:
-                    self.remontee(intersections,listeArrets)
+                if derniereIntersection != depart and self.racine.getIntitule() != depart:
+                    self.remontee(intersections,listeArrets,self.sensCirculation(listeArrets))
         else:
-            voyage.listeCheminsPossibles.extend(listeArrets)
-            self.remontee(derniereIntersection,listeArrets)
+            listeTemp.extend(listeArrets)
+            self.remontee(derniereIntersection,listeArrets,self.sensCirculation(listeArrets))
     
          
 # =============================================================================
@@ -196,13 +219,13 @@ class Reseau :
 listeFichiers = ['data/1_Poisy-ParcDesGlaisins.txt','data/2_Piscine-Patinoire_Campus.txt']
 listeLignes = []
 for fichier in listeFichiers:
-    listeLignes.append(Ligne(fichier,mid(fichier,5,len(fichier)-8)))
+    listeLignes.append(Ligne(fichier,mid(fichier,5,len(fichier)-9)))
 
 #Ajoute un objet de classe Ligne à listeLignes à partir d'un autre fichier .txt   
 def ajouter(nomFichier):
     if sibra.lecture(nomFichier) != ['vide']:
         listeFichiers.append(nomFichier)
-        listeLignes.append(Ligne(nomFichier,mid(nomFichier,5,len(nomFichier)-8)))
+        listeLignes.append(Ligne(nomFichier,mid(nomFichier,5,len(nomFichier)-9)))
         print("Le fichier a bien été ajouté")
     else:
         print("\nAttention : le fichier demandé n'a pas été trouvé")
@@ -222,7 +245,7 @@ def erreurSaisie(saisie):
     
 depart = "vernod"
 arrivee = "ponchy"
-ligneDepart = erreurSaisie(depart)
+#ligneDepart = erreurSaisie(depart)
 ##mode = input("Comment voulez-vous circuler ? ")
 # =============================================================================
 # Accueil
@@ -258,7 +281,6 @@ ligneDepart = erreurSaisie(depart)
 #
 #while erreurSaisie(depart) == True:
 #    depart = input("Le lieu de départ est introuvable. Réessayez : ").lower()
-#ligneDepart = erreurSaisie(depart)
 #
 ## =============================================================================
 ## Demande de saisie du lieu d'arrivée
@@ -266,12 +288,18 @@ ligneDepart = erreurSaisie(depart)
 #arrivee = input("Veuillez choisir l'arrêt d'arrivée souhaité : ").lower()
 #while erreurSaisie(arrivee) == True:
 #    arrivee = input("Le lieu d'arrivee est introuvable. Réessayez : ").lower()
+# Définition de la ligne de départ au hasard (mais priorité si depart et arrivee sur la même ligne)
+for ligne in listeLignes:
+    if depart in ligne.path and arrivee in ligne.path:
+        ligneDepart = ligne
+    else:
+        ligneDepart = erreurSaisie(depart)
 
 # =============================================================================
 # Création de l'arborescence
 # =============================================================================
 # Liste initialement vide utilisée dans la fonction croisementLigne() de la classe Reseau
-intersections = [depart]
+intersections = []
 
 # Création du noeud racine de l'arborescence
 voyage = Reseau(Arret(depart,
@@ -288,12 +316,17 @@ voyage.setArretsFils([
 # Shortest
 # =============================================================================*
 #1erArret = "Vous prendrez le bus à l'arrêt : "
-#print(voyage.verifChangementBus(voyage.shortest()[1]))
+
+listeTemp = []
+voyage.chemins(depart)
+enfin = voyage.setCheminsPossibles(listeTemp)
+for chemin in enfin:
+    print("------------------------")
+    for arret in chemin:
+        print(arret.getIntitule(),arret.getLigne().nom)
 
     
 
-voyage.cheminsPossibles(depart)
-print(voyage.listeCheminsPossibles)
 
 
     
