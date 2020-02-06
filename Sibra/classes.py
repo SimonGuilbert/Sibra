@@ -89,7 +89,6 @@ class Arret:
         self.horairesGo = self.setHoraires(horairesGo)
         self.horairesBack = self.setHoraires(horairesBack)
         self.arretSuivants = []
-        self.sauvegarde = 0
         
     # Retourne la liste des horaires au format timedelta (obtenu avec la bibliotèque datetime)            
     def setHoraires(self,typeHoraires):
@@ -165,43 +164,29 @@ class Reseau :
     
     def changementBus(self,fils):
         return self.racine.getLigne() != fils.getLigne()
+    
+    def remontee(self,stop,listeArrets):
+        #Récupération de l'indice du noeud courant dans sa ligne de bus
+        i = self.racine.getLigne().path.index(self.racine.getIntitule())
+        # La boucle while sert à 'reculer' dans l'arbre jusqu'à une intersection
+        while self.racine.getLigne().path[i] not in stop or self.racine.getLigne().path[i] == self.racine.getIntitule():
+            i += (1 if self.racine.getLigne().getArretPrecedent(self.racine.getIntitule()) == None else -1)
+            del listeArrets[-1]
+        
          
-    def shortest(self,longueur = 0,distanceShortest = [],listeArrets = []):
-        if self.racine.getIntitule() == arrivee:
-            if distanceShortest:
-                if longueur<distanceShortest[0]:
-                    # Vidage de la liste
-                    distanceShortest[:] = []
-                    distanceShortest.extend([longueur,self.racine])
-            else:
-                distanceShortest.extend([longueur,self.racine])
-        longueur += 1
+    def cheminsPossibles(self,derniereIntersection,listeArrets = []):
         listeArrets.append(self.racine.getIntitule())
         if not self.estTerminus():
             for fils in self.racine.arretSuivants:
-                Reseau(fils).shortest(longueur,distanceShortest,listeArrets)
+                Reseau(fils).cheminsPossibles((self.racine.getIntitule() if len(self.racine.arretSuivants)>1 else derniereIntersection),listeArrets)
+            if self.racine.getIntitule() in intersections and len(self.racine.arretSuivants)>1:
+                if (derniereIntersection or self.racine.getIntitule()) != depart:
+                    self.remontee(intersections,listeArrets)
         else:
-            #Récupération de l'indice du noeud courant dans sa ligne de bus
-            i = self.racine.getLigne().path.index(self.racine.getIntitule())
-            # La boucle while sert à 'reculer' dans l'arbre jusqu'à une intersection
-            print("newWhile",self.racine.getIntitule())
-#            print(listeArrets)
-            while self.racine.getLigne().path[i] not in intersections:
-                i += (1 if self.racine.getLigne().getArretPrecedent(self.racine.getIntitule()) == None else -1)
-                longueur -= 1
-                if len(listeArrets)>0:
-                    del listeArrets[-1]
             print(listeArrets)
-        return distanceShortest
+            print("--------------------------------------------")
+            self.remontee(derniereIntersection,listeArrets)
     
-    def verifChangementBus(self,arret,res = []):
-        if not self.estTerminus():
-            for fils in self.racine.arretSuivants:
-                if fils.getLigne() != self.racine.getLigne():
-                    res.append(self.racine)
-                if fils == arret:
-                    return res
-                Reseau(fils).verifChangementBus(arret)
          
 # =============================================================================
 # Lecture des fichiers d'origine
@@ -236,7 +221,7 @@ def erreurSaisie(saisie):
 # =============================================================================
     
 depart = "vernod"
-arrivee = "bonlieu"
+arrivee = "ponchy"
 ligneDepart = erreurSaisie(depart)
 ##mode = input("Comment voulez-vous circuler ? ")
 # =============================================================================
@@ -304,10 +289,13 @@ voyage.setArretsFils([
 # =============================================================================*
 #1erArret = "Vous prendrez le bus à l'arrêt : "
 #print(voyage.verifChangementBus(voyage.shortest()[1]))
-print(voyage.shortest())
+
+    
+k = []
+voyage.cheminsPossibles(depart)
 
 
-          
+    
 ## =============================================================================
 ## Fin du programme principal    
 ## =============================================================================
