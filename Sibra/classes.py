@@ -180,7 +180,7 @@ class Reseau :
     def sensCirculation(self,listeArr):
         if self.racine.getLigne().getArretPrecedent(self.racine.getIntitule()) == None:
             return "Go"
-        if self.racine.getLigne().getArretSuivant(self.racine.getIntitule()) == None:
+        elif self.racine.getLigne().getArretSuivant(self.racine.getIntitule()) == None:
             return "Back"
         else:
             if listeArr.index(self.racine.getLigne().getArretPrecedent(self.racine.getIntitule()))< \
