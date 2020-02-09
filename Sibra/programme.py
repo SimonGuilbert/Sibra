@@ -7,8 +7,7 @@ Created on Thu Jan 23 10:32:41 2020
 
 from datetime import date,datetime,timedelta
 from time import sleep
-import sibra
-
+import lecture
 
 # =============================================================================
 # Fonctions trouvées sur internet pour simplifier le code
@@ -57,7 +56,7 @@ convDate = datetime(
 #Jour de la semaine de la date choisie (0=lundi, 1=mardi, ..., 6=dimanche)
 jour = convDate.weekday()
 
-jour = ("weVacancesFerie" if jour>4 or convDate in sibra.getJoursFeriesVacances() else "semaine")
+jour = ("weVacancesFerie" if jour>4 or convDate in lecture.getJoursFeriesVacances() else "semaine")
 
 #jour = "semaine"
 
@@ -121,10 +120,10 @@ while modeTransport not in ("shortest","fastest","foremost"):
 class Ligne:
     def __init__(self,nomFichier,nomLigne):
         self.nom = nomLigne
-        self.slited_content = sibra.lecture(nomFichier)
+        self.slited_content = lecture.lecture(nomFichier)
         self.path = self.slited_content[0 if jour == "semaine" else 3].replace("+","n").split(" n ")
-        self.date_go = sibra.dates2dic(self.slited_content[1 if jour == "semaine" else 4])
-        self.date_back = sibra.dates2dic(self.slited_content[2 if jour == "semaine" else 5])
+        self.date_go = lecture.dates2dic(self.slited_content[1 if jour == "semaine" else 4])
+        self.date_back = lecture.dates2dic(self.slited_content[2 if jour == "semaine" else 5])
         
     def getArretPrecedent(self,arret):
         if arret == self.path[0]:
@@ -253,7 +252,7 @@ def ajouter(nomFichier):
     # Ajoute un objet de classe Ligne à listeLignes à partir d'un autre fichier .txt
     if nomFichier in listeFichiers:
         print("Attention : le fichier demandé est déjà pris en compte dans le calcul de l'itinéraire")
-    elif sibra.lecture(nomFichier) != ['vide']:
+    elif lecture.lecture(nomFichier) != ['vide']:
         listeFichiers.append(nomFichier)
         listeLignes.append(Ligne(nomFichier,mid(nomFichier,5,len(nomFichier)-9)))
         for fichier in listeFichiers:
@@ -382,7 +381,7 @@ def detailsItineraire(l):
             else:
                 horairesTemp = nouvelleLigne.date_back[l[i-1].getIntitule()]
             for hor in horairesTemp:
-                if (int(left(hor,len(hor)-3)) >= int(left(str(horaire),len(str(horaire))-6))) and (int(right(hor,2)) >= int(left(right(str(horaire),5),2))):
+                if ((int(left(hor,len(hor)-3)) == int(left(str(horaire),len(str(horaire))-6))) and (int(right(hor,2)) >= int(left(right(str(horaire),5),2)))) or (int(left(hor,len(hor)-3)) > int(left(str(horaire),len(str(horaire))-6))):
                     horairePrec = horaire
                     horaire = timedelta(hours = int(left(hor,len(hor)-3)),minutes = int(right(hor,2)))
                     print("→ Descendez à l'arrêt",l[i-1].getIntitule(),"et attendez",(horaire-horairePrec).seconds//60,"minutes")
