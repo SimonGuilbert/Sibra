@@ -21,99 +21,13 @@ def right(s, amount):
 
 def mid(s, offset, amount):
     return s[offset:offset+amount]
-
-# =============================================================================
-# Choix de la date
-# =============================================================================
-print("   _____ _ _                 ____  _\n  / ____(_) |               |  _ \(_)\n | (___  _| |__  _ __ __ _  | |_) |_  ___ _ ____   _____ _ __  _   _  ___\n  \___ \| | '_ \| '__/ _` | |  _ <| |/ _ \ '_ \ \ / / _ \ '_ \| | | |/ _ \ \n  ____) | | |_) | | | (_| | | |_) | |  __/ | | \ V /  __/ | | | |_| |  __/\n |_____/|_|_.__/|_|  \__,_| |____/|_|\___|_| |_|\_/ \___|_| |_|\__,_|\___|\n")                                                                          
-print("\n→ Indiquez la date de départ au format jj/mm/aaaa") 
-print("\n→ Ou bien entrez le mot 'today' pour voyager aujourd'hui")
-         
-choixDate = input("Quand souhaitez-vous voyager ? : ")
-
-# Vérification de la bonne saisie de l'utilisateur
-testDate = False
-while choixDate != "today" and not testDate:
-    try:
-       if int(right(choixDate,4))>2000 and int(right(choixDate,4))<2050 and \
-       int(mid(choixDate,3,2))<=12 and int(left(choixDate,2))<=31 and \
-       choixDate[2] == "/" and choixDate[5] == "/" and len(choixDate)==10:
-               testDate = True
-       else:
-           choixDate = input("Saisie incorrecte. Veuillez réessayer : ")   
-    except:
-        choixDate = input("Saisie incorrecte. Veuillez réessayer : ")    
-        
-# La variable choixDate prend la valeur d'aujourd'hui au bon format (jj/mm/aaaa)
-if choixDate == "today":        
-    choixDate = datetime.strptime(str(date.today()),"%Y-%m-%d").strftime("%d/%m/%Y")
-# Conversion de la date saisie en datetime
-convDate = datetime(
-        year = int(right(choixDate,4)),
-        month = int(mid(choixDate,3,2)),
-        day = int(left(choixDate,2)))
    
-#Jour de la semaine de la date choisie (0=lundi, 1=mardi, ..., 6=dimanche)
-jour = convDate.weekday()
-
-jour = ("weVacancesFerie" if jour>4 or convDate in lecture.getJoursFeriesVacances() else "semaine")
-
-#jour = "semaine"
-
-# =============================================================================
-# Horaires
-# =============================================================================
-print("  _    _                 _\n | |  | |               (_)\n | |__| | ___  _ __ __ _ _ _ __ ___\n |  __  |/ _ \| '__/ _` | | '__/ _ \ \n | |  | | (_) | | | (_| | | | |  __/\n |_|  |_|\___/|_|  \__,_|_|_|  \___|\n")
-          
-rappelJour = ("jour normal de semaine" if jour == "semaine" else "dimanche, jour férié ou pendant les vacances scolaires (zone A)")
-rappelDate = ("le "+choixDate if choixDate != "today" else "aujourdh'hui\n\n")
-print("\n→ Vous avez choisi de voyager",rappelDate,": c'est un",rappelJour)
-print("\n→ Saisissez l'heure de départ souhaitée au format hh:mm")
-print("\n→ Si vous voulez partir maintenant, écrivez now")
-choixHoraire = input("A quelle heure voulez-vous partir ?")
-
-# Vérification de la bonne saisie de l'utilisateur
-testHoraire = False
-while choixHoraire != "now" and not testHoraire:
-    try:
-       if int(left(choixHoraire,2))>=0 and int(left(choixHoraire,2))<=23 and \
-       int(right(choixHoraire,2))>=0 and int(right(choixHoraire,2))<=59 and \
-       choixHoraire[2] == ":" and len(choixHoraire) == 5:
-               testHoraire = True
-       else:
-           choixHoraire = input("Saisie incorrecte. Veuillez réessayer : ")   
-    except:
-        choixHoraire = input("Saisie incorrecte. Vérifiez la syntaxe de 08:45 et non pas 8:45. Veuillez réessayer : ")    
-   
-if choixHoraire == "now":
-    choixHoraire = left(str(datetime.now().time()),5)
-      
-## Conversion de la date saisie en datetime
-horaireDepart = timedelta(
-        hours = int(left(choixHoraire,2)),
-        minutes = int(right(choixHoraire,2)))
-
-
-# =============================================================================
-# Shortest, Fastest ou Foremost
-# =============================================================================
-print("  __  __           _ \n |  \/  |         | |\n | \  / | ___   __| | ___\n | |\/| |/ _ \ / _` |/ _ \ \n | |  | | (_) | (_| |  __/\n |_|  |_|\___/ \__,_|\___|\n")
-rappelHoraire = ("à "+choixHoraire if choixHoraire != "now" else "maintenant\n\n")
-print("\n→ Vous avez choisi de partir",rappelDate,rappelHoraire)
-print("\nComment voulez-vous voyager ?")
-print(" ♦ Shortest : le plus court en nombre d'arrêts")
-print(" ♦ Fastest : le plus rapide mais avec potentiellement plus d'arrêts")
-print(" ♦ Foremost : arrive au plus tôt peu importe le nombre d'arrêts")
-modeTransport = input("Écrivez shortest,fastest ou foremost :").lower()
-
-# Vérification de la bonne saisie de l'utilisateur
-while modeTransport not in ("shortest","fastest","foremost"):
-        modeTransport = input("Saisie incorrecte. Veuillez réessayer : ").lower()
-    
 # =============================================================================
 # Classes
 # =============================================================================
-
+# =============================================================================
+# Ligne
+# =============================================================================
 # On considère que le + dans la première ligne du fichier txt est une erreur 
 # et doit être remplacé par un N. On transforme ensuite la chaîne de caractères
 # en liste avec split
@@ -135,6 +49,9 @@ class Ligne:
             return None
         return self.path[self.path.index(arret)+1]
     
+# =============================================================================
+# Arret    
+# =============================================================================
 # Un objet de classe Arret n'a initialement pas de fils.
 # Ils seront créés avec la fonction setArretsFils() de la classe Reseau             
 class Arret:
@@ -165,8 +82,10 @@ class Arret:
     
     def getLigne(self):
         return self.ligne
-
-
+    
+# =============================================================================
+# Reseau
+# =============================================================================
 class Reseau :
     def __init__(self,racine):
         self.racine = racine    
@@ -393,12 +312,93 @@ def detailsItineraire(l):
 # =============================================================================
 # Programme principal      
 # =============================================================================
-    
-
 # =============================================================================
 # Accueil - Date du voyage
 # =============================================================================
+print("   _____ _ _                 ____  _\n  / ____(_) |               |  _ \(_)\n | (___  _| |__  _ __ __ _  | |_) |_  ___ _ ____   _____ _ __  _   _  ___\n  \___ \| | '_ \| '__/ _` | |  _ <| |/ _ \ '_ \ \ / / _ \ '_ \| | | |/ _ \ \n  ____) | | |_) | | | (_| | | |_) | |  __/ | | \ V /  __/ | | | |_| |  __/\n |_____/|_|_.__/|_|  \__,_| |____/|_|\___|_| |_|\_/ \___|_| |_|\__,_|\___|\n")                                                                          
+print("\n→ Indiquez la date de départ au format jj/mm/aaaa") 
+print("\n→ Ou bien entrez le mot 'today' pour voyager aujourd'hui")
+         
+choixDate = input("Quand souhaitez-vous voyager ? : ")
 
+# Vérification de la bonne saisie de l'utilisateur
+testDate = False
+while choixDate != "today" and not testDate:
+    try:
+       if int(right(choixDate,4))>2000 and int(right(choixDate,4))<2050 and \
+       int(mid(choixDate,3,2))<=12 and int(left(choixDate,2))<=31 and \
+       choixDate[2] == "/" and choixDate[5] == "/" and len(choixDate)==10:
+               testDate = True
+       else:
+           choixDate = input("Saisie incorrecte. Veuillez réessayer : ")   
+    except:
+        choixDate = input("Saisie incorrecte. Veuillez réessayer : ")    
+        
+# La variable choixDate prend la valeur d'aujourd'hui au bon format (jj/mm/aaaa)
+if choixDate == "today":        
+    choixDate = datetime.strptime(str(date.today()),"%Y-%m-%d").strftime("%d/%m/%Y")
+# Conversion de la date saisie en datetime
+convDate = datetime(
+        year = int(right(choixDate,4)),
+        month = int(mid(choixDate,3,2)),
+        day = int(left(choixDate,2)))
+   
+#Jour de la semaine de la date choisie (0=lundi, 1=mardi, ..., 6=dimanche)
+jour = convDate.weekday()
+
+jour = ("weVacancesFerie" if jour>4 or convDate in lecture.getJoursFeriesVacances() else "semaine")
+
+#jour = "semaine"
+
+# =============================================================================
+# Horaires
+# =============================================================================
+print("  _    _                 _\n | |  | |               (_)\n | |__| | ___  _ __ __ _ _ _ __ ___\n |  __  |/ _ \| '__/ _` | | '__/ _ \ \n | |  | | (_) | | | (_| | | | |  __/\n |_|  |_|\___/|_|  \__,_|_|_|  \___|\n")
+          
+rappelJour = ("jour normal de semaine" if jour == "semaine" else "dimanche, jour férié ou pendant les vacances scolaires (zone A)")
+rappelDate = ("le "+choixDate if choixDate != "today" else "aujourdh'hui\n\n")
+print("\n→ Vous avez choisi de voyager",rappelDate,": c'est un",rappelJour)
+print("\n→ Saisissez l'heure de départ souhaitée au format hh:mm")
+print("\n→ Si vous voulez partir maintenant, écrivez now")
+choixHoraire = input("A quelle heure voulez-vous partir ?")
+
+# Vérification de la bonne saisie de l'utilisateur
+testHoraire = False
+while choixHoraire != "now" and not testHoraire:
+    try:
+       if int(left(choixHoraire,2))>=0 and int(left(choixHoraire,2))<=23 and \
+       int(right(choixHoraire,2))>=0 and int(right(choixHoraire,2))<=59 and \
+       choixHoraire[2] == ":" and len(choixHoraire) == 5:
+               testHoraire = True
+       else:
+           choixHoraire = input("Saisie incorrecte. Veuillez réessayer : ")   
+    except:
+        choixHoraire = input("Saisie incorrecte. Vérifiez la syntaxe de 08:45 et non pas 8:45. Veuillez réessayer : ")    
+   
+if choixHoraire == "now":
+    choixHoraire = left(str(datetime.now().time()),5)
+      
+## Conversion de la date saisie en datetime
+horaireDepart = timedelta(
+        hours = int(left(choixHoraire,2)),
+        minutes = int(right(choixHoraire,2)))
+
+# =============================================================================
+# Shortest, Fastest ou Foremost
+# =============================================================================
+print("  __  __           _ \n |  \/  |         | |\n | \  / | ___   __| | ___\n | |\/| |/ _ \ / _` |/ _ \ \n | |  | | (_) | (_| |  __/\n |_|  |_|\___/ \__,_|\___|\n")
+rappelHoraire = ("à "+choixHoraire if choixHoraire != "now" else "maintenant\n\n")
+print("\n→ Vous avez choisi de partir",rappelDate,rappelHoraire)
+print("\nComment voulez-vous voyager ?")
+print(" ♦ Shortest : le plus court en nombre d'arrêts")
+print(" ♦ Fastest : le plus rapide mais avec potentiellement plus d'arrêts")
+print(" ♦ Foremost : arrive au plus tôt peu importe le nombre d'arrêts")
+modeTransport = input("Écrivez shortest,fastest ou foremost :").lower()
+
+# Vérification de la bonne saisie de l'utilisateur
+while modeTransport not in ("shortest","fastest","foremost"):
+        modeTransport = input("Saisie incorrecte. Veuillez réessayer : ").lower()
+        
 # =============================================================================
 # Demande de saisie du lieu de départ ou ajout d'un fichier
 # =============================================================================
