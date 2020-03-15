@@ -5,27 +5,23 @@ import java.lang.Math;
 
 public class Arbre {
 	private Noeud racine;
-	private ArrayList<String []> donnees;
+	private ArrayList<ArrayList<String>> donnees;
 	private ArrayList<String> listeClasses;
 	private Hashtable<String,ArrayList<String>> dicAttributs;
 
 	
 	// Constructeur
-	protected Arbre(Noeud racine,ArrayList<String []> donnees) {
+	protected Arbre(Noeud racine,ArrayList<ArrayList<String>> donnees) {
 		this.racine = racine;
 		this.donnees = donnees;
 		this.listeClasses = setListeClasses();
 		this.dicAttributs = setDicAttributs();
 		this.racine.setNom(meilleurGain());
 	}
-	
-	private int getIndex(String valeur){
-		return Arrays.asList(this.donnees.get(0)).indexOf(valeur);
-	}
-	
+		
 	private ArrayList<String> setListeClasses(){
 			ArrayList<String> res = new ArrayList<String>();
-			for (String [] objet : this.donnees) {
+			for (ArrayList<String> objet : this.donnees) {
 				if (!res.contains(dernierElement(objet))){
 					res.add(dernierElement(objet));	
 				}	
@@ -36,11 +32,11 @@ public class Arbre {
 		
 	private Hashtable<String,ArrayList<String>> setDicAttributs(){
 			Hashtable<String,ArrayList<String>> dic = new Hashtable<String,ArrayList<String>>();
-			for (int i=0;i<((this.donnees.get(0).length)-1);i++) {
-				dic.put(this.donnees.get(0)[i], new ArrayList<String>());
+			for (int i=0;i<((this.donnees.get(0).size())-1);i++) {
+				dic.put(this.donnees.get(0).get(i), new ArrayList<String>());
 				for (int j=1;j<this.donnees.size();j++) {
-					if (!dic.get(this.donnees.get(0)[i]).contains(this.donnees.get(j)[i]) && !this.donnees.get(j)[i].equals("?")){
-						dic.get(this.donnees.get(0)[i]).add(this.donnees.get(j)[i]);
+					if (!dic.get(this.donnees.get(0).get(i)).contains(this.donnees.get(j).get(i)) && !this.donnees.get(j).get(i).equals("?")){
+						dic.get(this.donnees.get(0).get(i)).add(this.donnees.get(j).get(i));
 					}
 				}		
 			}
@@ -53,7 +49,6 @@ public class Arbre {
 		double total = gainTotal();
 		for (String attribut : this.dicAttributs.keySet()) {
 			double gainTemp = total-E(repartition(attribut));
-			System.out.println(gainTemp);
 			if (gainTemp>meilleurVal) {
 				meilleurVal = gainTemp;
 				meilleurAttr = attribut;
@@ -62,17 +57,16 @@ public class Arbre {
 		return meilleurAttr;
 	}
 	
-	
 	private ArrayList<Double> repartition(String attr) {
-		int rangAttribut = getIndex(attr);
+		int rangAttribut = this.donnees.get(0).indexOf(attr);
 		ArrayList<Double> res = new ArrayList<Double>();
 		for (String valeur : this.dicAttributs.get(attr)) {
 			ArrayList<Integer> valGain = new ArrayList<Integer>();
 			double nbTotal = 0;
 				for (String classe : this.listeClasses) {
 					int nbValeurs = 0;
-					for (String [] objet : this.donnees) {
-						if (objet[rangAttribut].equals(valeur) && dernierElement(objet).equals(classe)){
+					for (ArrayList<String> objet : this.donnees) {
+						if (objet.get(rangAttribut).equals(valeur) && dernierElement(objet).equals(classe)){
 							nbValeurs += 1;
 							nbTotal += 1;
 						}
@@ -85,8 +79,8 @@ public class Arbre {
 		return res;
 	}
 	
-	private String dernierElement(String [] objet) {
-		return objet[objet.length-1];
+	private String dernierElement(ArrayList<String> objet) {
+		return objet.get(objet.size()-1);
 	}
 	
 	private double I(ArrayList<Integer> listeValeurs){
@@ -123,7 +117,7 @@ public class Arbre {
 		ArrayList<Integer> res = new ArrayList<Integer>();
 		for (String classe : this.listeClasses) {
 			int nbValeurs = 0;
-			for (String [] objet : this.donnees) {
+			for (ArrayList<String> objet : this.donnees) {
 				if (dernierElement(objet).equals(classe)){
 					nbValeurs += 1;
 				}
@@ -134,10 +128,10 @@ public class Arbre {
 	}
 	
 	private ArrayList<String []> sousEnsemble(String valProchainNoeud){
-		int rangSelf = getIndex(this.racine.getNom());
+		int rangSelf = this.donnees.get(0).indexOf(this.racine.getNom());
 		ArrayList<String []> res = new ArrayList<String []>();
-		for (String [] objet : this.donnees){
-			if (objet[rangSelf].equals(valProchainNoeud)){
+		for (ArrayList<String> objet : this.donnees){
+			if (objet.get(rangSelf).equals(valProchainNoeud)){
 				resTemp = new ArrayList
 				
 			}
@@ -145,17 +139,4 @@ public class Arbre {
 		// String [] = {nomDeArrayList}.toArray();
 		
 	}
-	
-//	def sousEnsemble(self):
-//        rangSelf = data[0].index(self.racine.getNom())
-//        res = []
-//        for objet in data:
-//            if objet[rangSelf] == self.valSousEnsemble:
-//                resTemp = []
-//                for attribut in objet:
-//                    if self.donnees[0].index(attribut) != rangSelf:
-//                        resTemp.append(attribut)
-//                res.append(resTemp)
-//        return res
-	
 }
