@@ -5,7 +5,9 @@ public class Main {
 		Lecture l = new Lecture("Data/golf.csv");
 		//Lecture l = new Lecture("Data/soybean-app.csv");
 		Noeud n = new Noeud();
+		l.data();
 		Arbre a = new Arbre(n,l.data());
+		System.out.println(n.getNom());
 		
 		
 	}
