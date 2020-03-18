@@ -79,10 +79,37 @@ public class Arbre {
 		return true;
 	}
 	
+	private String classeMajoritaire() {
+		Hashtable<String,Integer> effectifs = new Hashtable<String,Integer>();
+		for (ArrayList<String> objet : this.donnees) {
+			if (!objet.equals(this.donnees.get(0))) {
+				String valeur = this.dernierElement(objet);
+				if (effectifs.containsKey(valeur)) {
+					effectifs.put(valeur, effectifs.get(valeur)+1);
+				} else {
+					effectifs.put(valeur,1);
+				}
+			}		
+		}
+		return this.calculMaximum(effectifs);
+	}
+	
+	private String calculMaximum(Hashtable<String,Integer> dic) {
+		String maxCle=null;
+		Integer maxValeur = 0;
+		for(String cle : dic.keySet()) {
+			if (dic.get(cle) > maxValeur) {
+				maxValeur = dic.get(cle);
+				maxCle = cle;
+			}
+		}
+		return maxCle;	
+	}
+	
 	protected void setFils() {
 		if (this.classesIdentiques()) {
 			//System.out.println("FEUILLE,"+this.dernierElement(this.donnees.get(1)));
-			this.racine.setAttribut(this.dernierElement(this.donnees.get(1)));
+			this.racine.setAttribut(classeMajoritaire());
 		} else {
 			for (String valeur : this.dicAttributs.get(this.racine.getAttribut())) {
 				//System.out.println(this.racine.getAttribut());
