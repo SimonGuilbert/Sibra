@@ -4,17 +4,22 @@ import java.lang.Math;
 
 public class Arbre {
 	protected Noeud racine;
-	public ArrayList<ArrayList<String>> donnees;
+	public ArrayList<ArrayList<String>> donnees = new ArrayList<ArrayList<String>>();
 	private ArrayList<String> listeClasses;
 	private Hashtable<String,ArrayList<String>> dicAttributs;
 
-	// Constructeur
+	// Constructeur première création de l'arbre
 	protected Arbre(Noeud racine,ArrayList<ArrayList<String>> donnees) {
 		this.racine = racine;
 		this.donnees = donnees;
 		this.listeClasses = setListeClasses();
 		this.dicAttributs = setDicAttributs();
-		this.racine.setAttribut(meilleurGain());		
+		this.racine.setAttribut(meilleurGain());	
+	}
+	
+	// Constructeur lecture de l'arbre
+	protected Arbre(Noeud racine) {
+		this.racine = racine;
 	}
 	
 	// ========================================================================================
@@ -124,86 +129,113 @@ public class Arbre {
 // ========================================================================================
 // Calcul du meilleur gain
 // ========================================================================================
-		public String meilleurGain() {
-			double meilleurVal = -1;
-			String meilleurAttr = "Aucun";
-			double total = gainTotal();
-			for (String attribut : this.dicAttributs.keySet()) {
-				double gainTemp = total-E(repartition(attribut));
-				if (gainTemp>meilleurVal) {
-					meilleurVal = gainTemp;
-					meilleurAttr = attribut;
-				}
+	public String meilleurGain() {
+		double meilleurVal = -1;
+		String meilleurAttr = "Aucun";
+		double total = gainTotal();
+		for (String attribut : this.dicAttributs.keySet()) {
+			double gainTemp = total-E(repartition(attribut));
+			if (gainTemp>meilleurVal) {
+				meilleurVal = gainTemp;
+				meilleurAttr = attribut;
 			}
-			return meilleurAttr;
 		}
-		
-		private ArrayList<Double> repartition(String attr) {
-			int rangAttribut = this.donnees.get(0).indexOf(attr);
-			ArrayList<Double> res = new ArrayList<Double>();
-			for (String valeur : this.dicAttributs.get(attr)) {
-				ArrayList<Integer> valGain = new ArrayList<Integer>();
-				double nbTotal = 0;
-					for (String classe : this.listeClasses) {
-						int nbValeurs = 0;
-						for (ArrayList<String> objet : this.donnees) {
-							if (objet.get(rangAttribut).equals(valeur) && dernierElement(objet).equals(classe)){
-								nbValeurs += 1;
-								nbTotal += 1;
-							}
+		return meilleurAttr;
+	}
+	
+	private ArrayList<Double> repartition(String attr) {
+		int rangAttribut = this.donnees.get(0).indexOf(attr);
+		ArrayList<Double> res = new ArrayList<Double>();
+		for (String valeur : this.dicAttributs.get(attr)) {
+			ArrayList<Integer> valGain = new ArrayList<Integer>();
+			double nbTotal = 0;
+				for (String classe : this.listeClasses) {
+					int nbValeurs = 0;
+					for (ArrayList<String> objet : this.donnees) {
+						if (objet.get(rangAttribut).equals(valeur) && dernierElement(objet).equals(classe)){
+							nbValeurs += 1;
+							nbTotal += 1;
 						}
-						valGain.add(nbValeurs);		
 					}
-					res.add(I(valGain));
-					res.add(nbTotal);		
+					valGain.add(nbValeurs);		
+				}
+				res.add(I(valGain));
+				res.add(nbTotal);		
+		}
+		return res;
+	}
+	
+	private String dernierElement(ArrayList<String> objet) {
+		return objet.get(objet.size()-1);
+	}
+	
+	private double I(ArrayList<Integer> listeValeurs){
+		int somme = calculSomme(listeValeurs);
+		double res = 0;
+		for (double valeur : listeValeurs) {
+			if (valeur != 0) {
+				res += -(valeur/somme)*(Math.log(valeur/somme)/Math.log(2));
 			}
-			return res;
 		}
-		
-		private String dernierElement(ArrayList<String> objet) {
-			return objet.get(objet.size()-1);
+		return res;	
+	}
+	
+	private int calculSomme(ArrayList<Integer> liste) {
+		int res = 0;
+		for (int nombre : liste) {
+			res += nombre;
 		}
-		
-		private double I(ArrayList<Integer> listeValeurs){
-			int somme = calculSomme(listeValeurs);
-			double res = 0;
-			for (double valeur : listeValeurs) {
-				if (valeur != 0) {
-					res += -(valeur/somme)*(Math.log(valeur/somme)/Math.log(2));
+		return res;
+	}
+	
+	private double E(ArrayList<Double> valeurs) {
+		double res = 0;
+		int i = 0;
+		while (i != valeurs.size()) {
+			res += valeurs.get(i)*(valeurs.get(i+1)/(this.donnees.size()-1));
+			i+=2;
+		}
+		return res;
+	}
+	
+	private double gainTotal() {
+		ArrayList<Integer> res = new ArrayList<Integer>();
+		for (String classe : this.listeClasses) {
+			int nbValeurs = 0;
+			for (ArrayList<String> objet : this.donnees) {
+				if (dernierElement(objet).equals(classe)){
+					nbValeurs += 1;
 				}
 			}
-			return res;	
+			res.add(nbValeurs);
 		}
+		return I(res);
+	}
 		
-		private int calculSomme(ArrayList<Integer> liste) {
-			int res = 0;
-			for (int nombre : liste) {
-				res += nombre;
-			}
-			return res;
-		}
 		
-		private double E(ArrayList<Double> valeurs) {
-			double res = 0;
-			int i = 0;
-			while (i != valeurs.size()) {
-				res += valeurs.get(i)*(valeurs.get(i+1)/(this.donnees.size()-1));
-				i+=2;
+// ========================================================================================
+// Parcours de l'arbre
+// ========================================================================================		
+	protected String parcoursArbre(ArrayList<String> objet,ArrayList<String> nomsColonnes){
+	for (Noeud fils : this.racine.getFils()) {
+		if (fils.getNom().equals(objet.get(nomsColonnes.indexOf(this.racine.getAttribut())))) {
+			if (fils.estFeuille()) {
+				return fils.getAttribut();			
+			} else {
+				return (new Arbre(fils)).parcoursArbre(objet, nomsColonnes);
 			}
-			return res;
 		}
-		
-		private double gainTotal() {
-			ArrayList<Integer> res = new ArrayList<Integer>();
-			for (String classe : this.listeClasses) {
-				int nbValeurs = 0;
-				for (ArrayList<String> objet : this.donnees) {
-					if (dernierElement(objet).equals(classe)){
-						nbValeurs += 1;
-					}
-				}
-				res.add(nbValeurs);
+	}
+	return "Erreur";
+	}
+	
+	protected ArrayList<String> getPredClasses(){
+		ArrayList<String> res = new ArrayList<String>();
+		for (ArrayList<String> objet : this.donnees) {
+			if (!objet.equals(this.donnees.get(0))) {
+				res.add(this.parcoursArbre(objet, this.donnees.get(0)));
 			}
-			return I(res);
 		}
+		return res;
+	}		
 }
