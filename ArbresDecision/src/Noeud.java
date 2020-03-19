@@ -33,4 +33,8 @@ public class Noeud{
 	protected void ajoutFils(Noeud unFils) {
 		this.fils.add(unFils);
 	}
+	
+	protected boolean estFeuille() {
+		return this.getFils().isEmpty();
+	}
 }
