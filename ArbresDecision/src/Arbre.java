@@ -4,8 +4,8 @@ import java.lang.Math;
 
 public class Arbre {
 	protected Noeud racine;
-	public ArrayList<ArrayList<String>> donnees = new ArrayList<ArrayList<String>>();
-	private ArrayList<String> listeClasses;
+	protected ArrayList<ArrayList<String>> donnees = new ArrayList<ArrayList<String>>();
+	protected ArrayList<String> listeClasses;
 	private Hashtable<String,ArrayList<String>> dicAttributs;
 
 	// Constructeur première création de l'arbre
@@ -51,6 +51,10 @@ public class Arbre {
 			}
 			return dic;
 		}
+	
+	protected void setDonnees(ArrayList<ArrayList<String>> newDonnees) {
+		this.donnees = newDonnees;
+	}
 	
 // ========================================================================================
 // Méthodes de création des noeuds fils
@@ -217,16 +221,23 @@ public class Arbre {
 // Parcours de l'arbre
 // ========================================================================================		
 	protected String parcoursArbre(ArrayList<String> objet,ArrayList<String> nomsColonnes){
-	for (Noeud fils : this.racine.getFils()) {
-		if (fils.getNom().equals(objet.get(nomsColonnes.indexOf(this.racine.getAttribut())))) {
-			if (fils.estFeuille()) {
-				return fils.getAttribut();			
-			} else {
-				return (new Arbre(fils)).parcoursArbre(objet, nomsColonnes);
+		for (Noeud fils : this.racine.getFils()) {
+			if (fils.getNom().equals(objet.get(nomsColonnes.indexOf(this.racine.getAttribut())))) {
+				if (fils.estFeuille()) {
+					return fils.getAttribut();			
+				} else {
+					return (new Arbre(fils)).parcoursArbre(objet, nomsColonnes);
+				}
 			}
 		}
-	}
-	return "Erreur";
+		// Dans le cas où la valeur de l'attribut n'a pas été trouvée dans l'arbre, on continue l'algorithme
+		// avec un noeud fils du noeud racine pris au hasard
+		int nbAleatoire = (int)(Math.random() * (this.racine.getFils().size())); // nombre aléatoire entre 0 et le nombre de fils du noeud racine
+		if (this.racine.getFils().get(nbAleatoire).estFeuille()) {
+			return this.racine.getFils().get(nbAleatoire).getAttribut();			
+		} else {
+			return (new Arbre(this.racine.getFils().get(nbAleatoire))).parcoursArbre(objet, nomsColonnes);
+		}
 	}
 	
 	protected ArrayList<String> getPredClasses(){
@@ -238,4 +249,17 @@ public class Arbre {
 		}
 		return res;
 	}		
+	
+// ========================================================================================
+// Fonctions de création de la matrice de confusion
+// ========================================================================================
+	protected ArrayList<String> listeDerniersElements() {
+		ArrayList<String> res = new ArrayList<String>();
+		for (ArrayList<String> objet : this.donnees) {
+			if (!objet.equals(this.donnees.get(0))) {
+				res.add(this.dernierElement(objet));
+			}
+		}
+		return res;
+	}	
 }
