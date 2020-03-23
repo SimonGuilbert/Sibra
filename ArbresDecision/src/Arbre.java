@@ -5,13 +5,15 @@ import java.lang.Math;
 public class Arbre {
 	protected Noeud racine;
 	protected ArrayList<ArrayList<String>> donnees = new ArrayList<ArrayList<String>>();
+	protected int choixValManquantes;
 	protected ArrayList<String> listeClasses;
 	private Hashtable<String,ArrayList<String>> dicAttributs;
 
 	// Constructeur première création de l'arbre
-	protected Arbre(Noeud racine,ArrayList<ArrayList<String>> donnees) {
+	protected Arbre(Noeud racine,ArrayList<ArrayList<String>> donnees,Integer choixVal) {
 		this.racine = racine;
 		this.donnees = donnees;
+		this.choixValManquantes = choixVal;
 		this.listeClasses = setListeClasses();
 		this.dicAttributs = setDicAttributs();
 		this.racine.setAttribut(meilleurGain());	
@@ -44,8 +46,11 @@ public class Arbre {
 			for (int i=0;i<((this.donnees.get(0).size())-1);i++) {
 				dic.put(this.donnees.get(0).get(i), new ArrayList<String>());
 				for (int j=1;j<this.donnees.size();j++) {
-					if (!dic.get(this.donnees.get(0).get(i)).contains(this.donnees.get(j).get(i)) && !this.donnees.get(j).get(i).equals("?")){ //&& !this.donnees.get(j).get(i).equals("?")
-						dic.get(this.donnees.get(0).get(i)).add(this.donnees.get(j).get(i));
+					if (!dic.get(this.donnees.get(0).get(i)).contains(this.donnees.get(j).get(i))){ //&& !this.donnees.get(j).get(i).equals("?")
+						//System.out.println(this.choixValManquantes);
+						if (this.choixValManquantes == 1 || !this.donnees.get(j).get(i).equals("?")) {
+							dic.get(this.donnees.get(0).get(i)).add(this.donnees.get(j).get(i));
+						}
 					}
 				}		
 			}
@@ -125,7 +130,7 @@ public class Arbre {
 				//System.out.println("NOEUD,"+valeur);
 				Noeud n = new Noeud(valeur);
 				this.racine.ajoutFils(n);
-				(new Arbre(n,sousEnsemble(valeur))).setFils();
+				(new Arbre(n,sousEnsemble(valeur),this.choixValManquantes)).setFils();
 			}	
 		}
 	}
