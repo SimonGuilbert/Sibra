@@ -1,20 +1,24 @@
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Main {
 	public static void main(String[] args) throws IOException{
-		//Lecture lApp = new Lecture("Data/golf.csv");
+		//Lecture l = new Lecture("Data/golf.csv");
 		// PARTIE APPRENTISSAGE
-		Lecture lApp = new Lecture("Data/soybean-app.csv");
-		Arbre a = new Arbre(new Noeud("PremierNoeud"),lApp.data());
+		Lecture l = new Lecture("Data/soybean-app.csv");
+		Arbre a = new Arbre(new Noeud("PremierNoeud"),l.data(),l.getChoixValManquantes());
 		a.setFils();
 		Matrice matApp = new Matrice(a.getPredClasses(),a.listeDerniersElements(),a.listeClasses);
-		matApp.afficher();
 		
 		// PARTIE PREDICTION
-		Lecture lPred = new Lecture("Data/soybean-pred.csv");
-		a.setDonnees(lPred.data()); // On change les données (nouvelles données = soybean-pred.csv)
+		l.setNomfichier("Data/soybean-pred.csv"); // On change de fichier
+		a.setDonnees(l.data()); // On change les données (nouvelles données = soybean-pred.csv)
 		Matrice matPred = new Matrice(a.getPredClasses(),a.listeDerniersElements(),a.listeClasses);
-		matPred.afficher();
+		
+		// AFFICHAGE FENETRE
+		Fenetre fen = new Fenetre(matApp,matPred,matApp.getListeClasse());
+		
+
 	}
 
 }
