@@ -18,4 +18,37 @@ Les données relatives au réseau de la Sibra à Annecy est pris en exemple dans
 Par exemple, on peut utiliser Spyder téléchargeable gratuitement : www.anaconda.com/distribution/
 * Exécuter le fichier programme.py
 * Suivre les instructions de la console
+
+## 2ème projet (Java): Arbres de Décision - de Id3 à C4.5
+Le programme utilise l'algorithme Id3 et C4.5 pour créer un arbre de décision à partir de données d'apprentissage.
+L'arbre est ensuite parcouru pour prédire la classe des données d'un ensemble de test.
+Les résultats et performances sont données sous forme de matrices de confusion :
+![](https://github.com/SimonGuilbert/PROJ631_Projet_Algorithmique/blob/master/ArbresDecision/Code/Data/Matrices.PNG)
+
+### Mode d'emploi du programme sur l'arbre de décision
+* 1ère méthode : avec un terminal
+  * Télécharger le dossier de ce dépôt
+  * Décompresser et enregistrer le dossier appelé ArbreDecision
+  * Ouvrir un terminal
+  * Avec la commande cd, se déplacer à l'emplacement du dossier ArbreDecision
+  * Entrer la commande cd Code
+  * Écrire javac Main.java
+  * Écrire java Main
+  * Si ça ne fonctionne pas, regarder ceci : https://fr.wikihow.com/compiler-et-ex%C3%A9cuter-un-programme-Java-en-ligne-de-commande
+  
+* 2ème méthode : avec Eclipse
+  * Télécharger le dossier de ce dépôt
+  * Télecharger Eclipse gratuitement : https://www.eclipse.org/downloads/
+  * Décompresser et enregistrer le dossier appelé ArbreDecision 
+  * Ouvrir Eclipse
+  * File > new > Java Project
+  * Décocher Use Default Location
+  * Dans la zone de texte Location: écrire le chemin amenant au dossier Code (sous-dossier de ArbreDecision)
+  * Finish
+  * A gauche, dans l'onglet Package Explorer, clic droit sur Code
+  * Run As > Java Application
+  
+
+  
+
   
