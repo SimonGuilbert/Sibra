@@ -20,7 +20,7 @@ public class BoiteDialogueArbre extends JDialog implements ActionListener{
   public BoiteDialogueArbre(){
 	this.setModal(true);
 	this.setTitle("Choix de l'arbre");
-    this.setSize(305, 300);
+    this.setSize(305, 300); // En pixels
     this.setLocationRelativeTo(null);
     this.setResizable(false);
     this.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
@@ -34,23 +34,21 @@ public class BoiteDialogueArbre extends JDialog implements ActionListener{
     premierPan.setBackground(Color.DARK_GRAY);
     
     // Question
-    JLabel question = new JLabel("Choisissez un arbre de décision                     ");
-    // Obligé de mettre plein d'espaces pour décentrer car question.setHorizontalAlignment(SwingConstants.LEFT); ne fonctionne pas. Pas de message d'erreur mais rien ne se passe
+    JLabel question = new JLabel("Choisissez un arbre de dÃ©cision                     ");
+    // ObligÃ© de mettre plein d'espaces pour dÃ©centrer car question.setHorizontalAlignment(SwingConstants.LEFT); ne fonctionne pas. Pas de message d'erreur mais rien ne se passe
     question.setForeground(Color.WHITE);
     question.setBackground(Color.DARK_GRAY);
     
-    
     // Boutons radio
     JPanel panContour = new JPanel();
-    //panContour.setBorder(BorderFactory.createTitledBorder("Choisissez un arbre de décision"));
     choix1 = new JRadioButton("Id3");
     choix1.setForeground(Color.WHITE);
     choix1.setBackground(Color.DARK_GRAY);
-    choix1.setSelected(true);
+    choix1.setSelected(true); // Le premier bouton radio est automatiquement sÃ©lectionnÃ©
     choix2 = new JRadioButton("C4.5");
     choix2.setForeground(Color.WHITE);
     choix2.setBackground(Color.DARK_GRAY);
-    ButtonGroup bg = new ButtonGroup(); // ButtonGroup nécessaire pour empêcher la sélection de plusieurs boutons radio
+    ButtonGroup bg = new ButtonGroup(); // ButtonGroup nÃ©cessaire pour empÃªcher la sÃ©lection de plusieurs boutons radio en meme temps
     bg.add(choix1);
     bg.add(choix2);
     JPanel panRadio = new JPanel();
@@ -75,27 +73,27 @@ public class BoiteDialogueArbre extends JDialog implements ActionListener{
     //Bouton Valider
     JPanel bouton = new JPanel();
     JButton okBouton = new JButton("Valider");
-    okBouton.addActionListener(this);
+    okBouton.addActionListener(this); // Ajout d'un Ã©couteur
     bouton.add(okBouton);
     bouton.setBackground(Color.DARK_GRAY);
     
-    this.getContentPane().add(panFinal, BorderLayout.NORTH);
-    this.getContentPane().add(bouton, BorderLayout.SOUTH);
-    this.getContentPane().add(labImage, BorderLayout.CENTER);
+    this.getContentPane().add(panFinal, BorderLayout.NORTH); // Choix de l'arbre et titre en haut
+    this.getContentPane().add(bouton, BorderLayout.SOUTH); // Bouton en bas
+    this.getContentPane().add(labImage, BorderLayout.CENTER); // Image au centre
     this.getContentPane().setBackground(Color.DARK_GRAY);
-    this.setVisible(true);
+    this.setVisible(true); // On rend la boite de dialogue visible
   }
 
-	public void actionPerformed(ActionEvent arg0) {   
-		this.setVisible(false);
-		this.setChoix();
+	public void actionPerformed(ActionEvent arg0) { // Quand on appuie sur le bouton
+		this.setVisible(false); // Fermeture de la boite de dialogue
+		this.setChoix(); // Enregistrement du choix dans this.choixArbre
 	}
 	
 	public String getChoix() {
 		return this.choixArbre;
 	}
   
-	private void setChoix(){
+	private void setChoix(){ // Enregistre le choix Ã©coutÃ© par le listener du bouton dans this.choixArbre ("id3" ou "c4.5")
 		if (choix1.isSelected()){
 			this.choixArbre = "id3";
 		} else {
