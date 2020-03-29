@@ -1,9 +1,9 @@
 import java.util.ArrayList;
 
 public class Noeud{
-	private ArrayList<Noeud> fils = new ArrayList<Noeud>();
-	private String attributAssocie;
-	private String nom;
+	private ArrayList<Noeud> fils = new ArrayList<Noeud>(); // Liste des noeuds fils
+	private String attributAssocie; // Attribut
+	private String nom; // Valeur d'un attribut
 	
 	// Constructeur
 	public Noeud(String unNom) {
