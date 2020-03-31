@@ -15,7 +15,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 
 public class BoiteDialogue extends JDialog implements ActionListener{
-  private JRadioButton choix1, choix2, choix3;
+  private JRadioButton choix1, choix2, choix3, choix4;
   protected int choix;
 
   public BoiteDialogue(){
@@ -41,21 +41,26 @@ public class BoiteDialogue extends JDialog implements ActionListener{
     choix1.setSelected(true); // Le premier bouton radio est automatiquement sélectionné
     choix2 = new JRadioButton("Oublier les ? : l'algorithme se basera sur les valeurs non manquantes pour prédire la classe");
     choix3 = new JRadioButton("Remplacer les ? par la valeur majoritaire de l'attribut correspondant");
+    choix4 = new JRadioButton("Ne pas remplacer les valeurs manquantes mais adapter le gain d'information avec un ratio");
     ButtonGroup bg = new ButtonGroup(); // ButtonGroup nécessaire pour empêcher la sélection de plusieurs boutons radio
     bg.add(choix1);
     bg.add(choix2);
     bg.add(choix3);
+    bg.add(choix4);
     JPanel panRadio = new JPanel();
     panRadio.setLayout(new BoxLayout(panRadio, BoxLayout.Y_AXIS)); //Pour que les boutons soient organisés verticalement
     panRadio.add(choix1);
     panRadio.add(choix2);
     panRadio.add(choix3);
+    panRadio.add(choix4);
     choix1.setBackground(Color.DARK_GRAY);
     choix1.setForeground(Color.WHITE);
     choix2.setBackground(Color.DARK_GRAY);
     choix2.setForeground(Color.WHITE);
     choix3.setBackground(Color.DARK_GRAY);
     choix3.setForeground(Color.WHITE);
+    choix4.setBackground(Color.DARK_GRAY);
+    choix4.setForeground(Color.WHITE);
     panRadio.setBackground(Color.DARK_GRAY);
     panContour.add(panRadio);
     panContour.setBackground(Color.DARK_GRAY);
@@ -104,6 +109,9 @@ public class BoiteDialogue extends JDialog implements ActionListener{
 		} 
 		if (choix3.isSelected()){
 			this.choix = 3;
+		}
+		if (choix4.isSelected()){
+			this.choix = 4;
 		}
 	}
 }
