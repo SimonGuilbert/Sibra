@@ -10,6 +10,7 @@ public class Arbre {
 	protected int choixValManquantes; // 0,1,2 ou 3 retourné par Lecture.getChoixValManquntes()
 	protected ArrayList<String> listeClasses; // Liste où chaque classe apparait exactement une fois
 	private Hashtable<String,ArrayList<String>> dicAttributs; // Dictionnaire ayant pour clé un attribut et pour valeur une liste des valeurs possibles de cet attribut
+	private ArrayList<Integer> listeValInconnues = new ArrayList<Integer>();
 
 	// Constructeur pour la création de l'arbre
 	public Arbre(Noeud racine,ArrayList<ArrayList<String>> donnees,String choixArb,int choixVal) {
@@ -19,6 +20,9 @@ public class Arbre {
 		this.choixValManquantes = choixVal;
 		if (this.choixValManquantes == 3) { // Si le choix de traitement des valeurs manquantes est égal à 3
 			this.changeAttributMajoritaire(); // On remplace les points d'interrogation par la valeur de l'attribut associé majoritaire
+		}
+		if (this.choixValManquantes == 4) { // Si le choix de traitement des valeurs manquantes est égal à 4
+			this.setValInconnues(); // On liste le nombre de valeurs manquantes par attribut
 		}
 		this.listeClasses = setListeClasses();
 		this.dicAttributs = setDicAttributs();
@@ -96,6 +100,19 @@ public class Arbre {
 			}		
 		}
 		return this.calculMaximum(effectifs);
+	}
+	
+	private void setValInconnues() {
+		for (int i=0;i<this.donnees.get(0).size();i++) {
+			int resTemp = 0;
+			for (ArrayList<String> objet : this.donnees) {
+				if (objet.get(i).equals("?")) {
+					resTemp++;
+				}				
+			}
+			this.listeValInconnues.add(resTemp);
+			
+		}
 	}
 	
 // ========================================================================================
@@ -181,12 +198,23 @@ public class Arbre {
 		double total = gainTotal();
 		for (String attribut : this.dicAttributs.keySet()) { // Pour chaque attribut
 			double gainTemp = total-E(repartition(attribut));
+			if (this.choixValManquantes == 4) {
+				int nb = this.listeValInconnues.get(this.donnees.get(0).indexOf(attribut)); // Nombre de valeurs inconnues
+				gainTemp = gainTemp + nb*ratio(nb); // Adaptation du gainTemp aux valeurs manquantes
+			}
 			if (gainTemp>meilleurVal) {
 				meilleurVal = gainTemp;
 				meilleurAttr = attribut;
 			}
 		}
 		return meilleurAttr;
+	}
+	
+	private double ratio(int nombre) {
+		if (calculSomme(this.listeValInconnues) == 0) {
+			return 0;
+		}
+		return (this.donnees.size()-1-nombre)/calculSomme(this.listeValInconnues);
 	}
 	
 	private String meilleurGainC4_5(){ // Retourne le nom de l'attribut qui apporte le meilleur gain d'information (uniquement pour l'algorithme C4.5)
@@ -209,6 +237,10 @@ public class Arbre {
 		for (String attribut : dic.keySet()) { // Pour chaque attribut
 			if (dic.get(attribut)>moyenne) { // Si son gain d'information est supérieur à la moyenne
 				dic.put(attribut, dic.get(attribut)/IV(repartitionC4_5(attribut))); // On le divise par la fonction IV
+			}
+			if (this.choixValManquantes == 4) {
+				int nb = this.listeValInconnues.get(this.donnees.get(0).indexOf(attribut)); // Nombre de valeurs inconnues
+				dic.put(attribut, dic.get(attribut)+nb*ratio(nb)); // Adaptation du gainTemp aux valeurs manquantes
 			}
 			if (dic.get(attribut)>meilleurVal) {
 				meilleurVal = dic.get(attribut);
